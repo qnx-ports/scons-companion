@@ -1,0 +1,33 @@
+From 1bfb74d654751dfc0df2cdd482b2613fc5fb9965 Mon Sep 17 00:00:00 2001
+From: felixlionardo <flionardo@blackberry.com>
+Date: Fri, 10 Oct 2025 09:18:08 -0400
+Subject: [PATCH] QNX environment fix
+
+---
+ SCons/Platform/posix.py | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/SCons/Platform/posix.py b/SCons/Platform/posix.py
+index b655b77d5..e8d35baeb 100644
+--- a/SCons/Platform/posix.py
++++ b/SCons/Platform/posix.py
+@@ -30,6 +30,7 @@ selection method.
+ 
+ import platform
+ import subprocess
++import os
+ 
+ from SCons.Platform import TempFileMunge
+ from SCons.Platform.virtualenv import ImportVirtualenv
+@@ -83,6 +84,8 @@ def generate(env) -> None:
+     if 'ENV' not in env:
+         env['ENV']        = {}
+     env['ENV']['PATH']    = '/usr/local/bin:/opt/bin:/bin:/usr/bin:/snap/bin'
++    env['ENV']['QNX_HOST'] = os.environ.get('QNX_HOST', '/')
++    env['ENV']['QNX_TARGET'] = os.environ.get('QNX_TARGET', '/')
+     env['OBJPREFIX']      = ''
+     env['OBJSUFFIX']      = '.o'
+     env['SHOBJPREFIX']    = '$OBJPREFIX'
+-- 
+2.34.1
+

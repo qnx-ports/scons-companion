@@ -1,0 +1,60 @@
+# Contributor: Nicolas Lorin <androw95220@gmail.com>
+# Alpine-Maintainer: Natanael Copa <ncopa@alpinelinux.org>
+# Maintainer: Felix Lionardo <flionardo@qnx.com>
+pkgname=scons
+pkgver=4.10.0
+pkgrel=0
+pkgdesc="Software construction system"
+url="https://scons.org/"
+arch="noarch"
+license="MIT"
+depends="python3"
+makedepends="python3-gpep517 python3-setuptools python3-wheel"
+checkdepends="xz"
+subpackages="$pkgname-doc"
+# fetching both sources, because only github tarball has tests
+# and only sourceforge tarball has prebuilt manpages
+# building the scons manpages requires working scons install...
+source="https://github.com/SCons/scons/archive/$pkgver/scons-$pkgver.tar.gz
+    https://downloads.sourceforge.net/project/scons/scons/$pkgver/SCons-$pkgver.tar.gz
+    0001-QNX-environment-fix.patch
+    "
+
+# tests need py3-psutil from community
+options="!check"
+
+prepare() {
+    default_prepare
+
+    # remove failing test
+    case $CARCH in
+    ppc64le) rm test/builderrors.py ;;
+    esac
+}
+
+build() {
+    gpep517 build-wheel --wheel-dir .dist --output-fd 3 3>&1 >&2
+}
+
+check() {
+    python3 -m venv --clear --without-pip --system-site-packages .testenv
+    .testenv/bin/python3 -m installer .dist/*.whl
+    .testenv/bin/python3 runtest.py -a
+}
+
+package() {
+    python3 -m installer -d "$pkgdir" .dist/*.whl
+
+    # find and remove directories containing docbook files
+    find "$pkgdir" -name 'docbook' -type d -exec rm -rf {} +
+
+    install -Dm644 scons.1 scons-time.1 sconsign.1 \
+        -t "$pkgdir"/usr/share/man/man1/
+}
+
+
+sha512sums="
+c6203b1f95627b908fefcc4d9d4a89c9e0d9869c16bef30a9ea16ad32ae0eae45795e36ab92eeb58ab41a1cf53d09094fadfe474e663cdb5da642cfbf7fcb80a  scons-4.10.0.tar.gz
+5f9a4ac2cfc88b9862d56683f2cf8a1f649d6f7c96af7675fab6ffbd6461e2dd416279dc36fcc9aa347ea48b5fffd23fc59e5664b93a9b3e32a24241ec516337  SCons-4.10.0.tar.gz
+f39f3bca39cafd15808a0bd1473ef5fc02aa4be02680009f7589fe6a2686feb23c575f6f4e26fdfcd3e966d0ba382eb65601e6fee78c9bf958f23fdb2a78e5ae  0001-QNX-environment-fix.patch
+"
