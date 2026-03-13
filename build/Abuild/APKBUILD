@@ -3,7 +3,7 @@
 # Maintainer: Felix Lionardo <flionardo@qnx.com>
 pkgname=scons
 pkgver=4.10.0
-pkgrel=0
+pkgrel=${pkgrel:-0}
 pkgdesc="Software construction system"
 url="https://scons.org/"
 arch="noarch"
@@ -53,6 +53,7 @@ package() {
 }
 
 
+options="$options ${DISABLE_CHECK:+!check}"
 sha512sums="
 c6203b1f95627b908fefcc4d9d4a89c9e0d9869c16bef30a9ea16ad32ae0eae45795e36ab92eeb58ab41a1cf53d09094fadfe474e663cdb5da642cfbf7fcb80a  scons-4.10.0.tar.gz
 5f9a4ac2cfc88b9862d56683f2cf8a1f649d6f7c96af7675fab6ffbd6461e2dd416279dc36fcc9aa347ea48b5fffd23fc59e5664b93a9b3e32a24241ec516337  SCons-4.10.0.tar.gz
